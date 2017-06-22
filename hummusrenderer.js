@@ -381,12 +381,26 @@ function renderTextItem(inBox,inItem,inPDFPage,inPDFWriter,inRenderingState)
 
 	var left = getLeftForAlignment(inBox,inItem,inPDFWriter,inRenderingState);
 
-	inPDFPage.startContentContext().writeText(theText,left,inBox.bottom,inItem.options);
+        var context = inPDFPage.startContextContext().BT();
 
+        if(inItem.options.color) {
+                context.rg(inItem.options.color[0], inItem.options.color[1], inItem.options.color[2]);
+        }
+
+        context.Tf(theFont, 1.0);
+
+        if(inItem.options.charSpace)
+        {
+                context.Tc();
+        }
+
+        context.Tm(inItem.options.size, 0, 0, inItem.options.size, left, inBox.bottom)
+                .Tj(theText)
+                .ET();
 
 	if(inItem.link)
 	{
-		var measures = calculateTextDimensions(theFont,theText,inItem.options.size);
+		var measures = calculateTextDimensions(theFont,theText,inItem.options);
 		inRenderingState.links.push({link:inItem.link,rect:[left+measures.xMin,inBox.bottom+measures.yMin,left+measures.xMax,inBox.bottom+measures.yMax]});
 	}
 }
@@ -396,29 +410,41 @@ function hasNonSpace(inText)
 	return inText.match(/[^\s]/);
 }
 
-function calculateTextDimensions(inFont,inText,inFontSize)
+function calculateTextDimensions(inFont,inText,inOptions)
 {
+        var fontSize = inOptions.size;
+        var charSpace = inOptions.charSpace;
+        if (charSpace === undefined) {
+                charSpace = 0;
+        }
+        var extraSpacing = charSpace * (inText.length - 1);
+
 	// calculate the text measures. handles a bug where space only strings don't get their correct measures
 	if(hasNonSpace(inText))
 	{
 		// may be ending with space, in which case i'll get the same problem as having spaces...so do a similar trick..with no height this time
 		if(inText.search(/[\s]*$/) != inText.length)
 		{
-			var measures = inFont.calculateTextDimensions(inText+'a',inFontSize);
-			var measuresA = inFont.calculateTextDimensions('a',inFontSize);
-			measures.width-=measuresA.xMax;
-			measures.xMax-=measuresA.xMax;
+			var measures = inFont.calculateTextDimensions(inText+'a',fontSize);
+			var measuresA = inFont.calculateTextDimensions('a',fontSize);
+			measures.width = measures.width - measuresA.xMax + extraSpacing;
+			measures.xMax = measures.xMax - measuresA.xMax + extraSpacing;
 			return measures;
 		}
 		else
-			return inFont.calculateTextDimensions(inText,inFontSize);
+                {
+			var measures = inFont.calculateTextDimensions(inText,fontSize);
+                        measures.width += extraSpacing;
+                        measures.xMax += extraSpacing;
+                        return measures;
+                }
 	}
 	else
 	{
-		var measures = inFont.calculateTextDimensions('a'+inText+'a',inFontSize);
-		var measuresA = inFont.calculateTextDimensions('aa',inFontSize);
-		var dMeasure = inFont.calculateTextDimensions('d',inFontSize);
-		dMeasure.width = measures.width-measuresA.width;
+		var measures = inFont.calculateTextDimensions('a'+inText+'a',fontSize);
+		var measuresA = inFont.calculateTextDimensions('aa',fontSize);
+		var dMeasure = inFont.calculateTextDimensions('d',fontSize);
+		dMeasure.width = measures.width - measuresA.width + extraSpacing;
 		dMeasure.xMin = 0;
 		dMeasure.xMax = dMeasure.width;
 		return dMeasure;
@@ -441,7 +467,7 @@ function getTextItemMeasures(inItem,inPDFWriter,inRenderingState)
 	var theText = computeTextForItem(inItem);
 	if(theFont && theText.length > 0)
 	{
-		var measures =  calculateTextDimensions(theFont,theText,inItem.options.size);
+		var measures =  calculateTextDimensions(theFont,theText,inItem.options);
 		return {width:measures.xMax,height:measures.yMax}; // note, taking yMax, and not height, because we want the ascent and not the descent, which is below the baseline!
 															// also taking xMAx...cause i want the advance and not just the start to end glyphs area
 	}
@@ -622,7 +648,7 @@ function composeLine(inLine,inState)
 	else
 	{
 		// empty line, just increase yOffset per the newline height.
-		var lineHeight = getFont(inPDFWriter,inRenderingState,inLine.styles[0]).calculateTextDimensions('d',inLine.styles[0].options.size).yMax;
+		var lineHeight = getFont(inPDFWriter,inRenderingState,inLine.styles[0]).calculateTextDimensions('d',inLine.styles[0].options).yMax;
 		if(inState.box.height !== undefined && inState.yOffset-lineHeight*inState.lineSpacingModifier() < inState.box.bottom)
 		{
 			return false;
