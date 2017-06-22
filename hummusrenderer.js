@@ -419,8 +419,6 @@ function calculateTextDimensions(inFont,inText,inOptions)
         }
         var extraSpacing = charSpace * (inText.length - 1) * fontSize;
 
-        console.log("extra spacing is " + extraSpacing);
-
 	// calculate the text measures. handles a bug where space only strings don't get their correct measures
 	if(hasNonSpace(inText))
 	{
