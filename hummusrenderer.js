@@ -381,7 +381,7 @@ function renderTextItem(inBox,inItem,inPDFPage,inPDFWriter,inRenderingState)
 
 	var left = getLeftForAlignment(inBox,inItem,inPDFWriter,inRenderingState);
 
-        var context = inPDFPage.startContextContext().BT();
+        var context = inPDFPage.startContentContext().BT();
 
         if(inItem.options.color) {
                 context.rg(inItem.options.color[0], inItem.options.color[1], inItem.options.color[2]);
