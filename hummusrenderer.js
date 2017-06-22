@@ -417,7 +417,7 @@ function calculateTextDimensions(inFont,inText,inOptions)
         if (charSpace === undefined) {
                 charSpace = 0;
         }
-        var extraSpacing = charSpace * (inText.length - 1);
+        var extraSpacing = charSpace * (inText.length - 1) * fontSize;
 
         console.log("extra spacing is " + extraSpacing);
 
