@@ -391,7 +391,7 @@ function renderTextItem(inBox,inItem,inPDFPage,inPDFWriter,inRenderingState)
 
         if(inItem.options.charSpace)
         {
-                context.Tc();
+                context.Tc(inItem.options.charSpace);
         }
 
         context.Tm(inItem.options.size, 0, 0, inItem.options.size, left, inBox.bottom)
