@@ -364,24 +364,24 @@ function renderShapeItem(inBox,inItem,inPDFPage,inPDFWriter,inRenderingState)
 			var ctx = inPDFPage.startContentContext()
 				.q()
 				.cm(1, 0, 0, 1, left, inBox.bottom);
-			for(var i=0;i<inItem.commands.length;i++)
+			inItem.commands.forEach(function(command)
 			{
-				switch(inItem.command)
+				switch(command.command)
 				{
 					case 'rg':
-						ctx.rg(...inItem.args);
+						ctx.rg(...command.args);
 						break;
 					case 'm':
-						ctx.m(...inItem.args);
+						ctx.m(...command.args);
 						break;
 					case 'c':
-						ctx.c(...inItem.args);
+						ctx.c(...command.args);
 						break;
 					case 'f':
 						ctx.f();
 						break;
 				}
-			}
+			});
 			ctx.Q();
 			break;
 	}
