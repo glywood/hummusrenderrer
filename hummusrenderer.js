@@ -368,6 +368,9 @@ function renderShapeItem(inBox,inItem,inPDFPage,inPDFWriter,inRenderingState)
 			{
 				switch(command.command)
 				{
+					case 'cm':
+						ctx.cm(...command.args);
+						break;
 					case 'rg':
 						ctx.rg(...command.args);
 						break;
