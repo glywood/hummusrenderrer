@@ -360,6 +360,30 @@ function renderShapeItem(inBox,inItem,inPDFPage,inPDFWriter,inRenderingState)
 			var cxt = inPDFPage.startContentContext();
 			cxt.drawPath.apply(cxt,args);
 			break;
+		case 'custom':
+			var ctx = inPDFPage.startContentContext()
+				.q()
+				.cm(1, 0, 0, 1, left, inBox.bottom);
+			for(var i=0;i<inItem.commands.length;i++)
+			{
+				switch(inItem.command)
+				{
+					case 'rg':
+						ctx.rg(...inItem.args);
+						break;
+					case 'm':
+						ctx.m(...inItem.args);
+						break;
+					case 'c':
+						ctx.c(...inItem.args);
+						break;
+					case 'f':
+						ctx.f();
+						break;
+				}
+			}
+			ctx.Q();
+			break;
 	}
 }
 
@@ -1275,6 +1299,9 @@ function getShapeItemMeasures(inItem)
 					maxTop = inItem.points[i+1];
 			}
 			result = {width:maxRight,height:maxTop};
+			break;
+		case 'custom':
+			result = {width:inItem.width,height:inItem.height};
 			break;
 		default:
 			result = {width:0,height:0};
