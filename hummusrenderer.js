@@ -213,7 +213,7 @@ function renderDocument(inDocument,inPDFWriter,inRenderingState)
 			if (inPage.source !== undefined)
 			{
 				inPDFWriter.mergePDFPagesToPage(thePageDriver.page, inPage.source,
-					{type:hummus.eRangeTypeSpecific,specificRanges:[inPage.sourcePage,inPage.sourcePage]});
+					{type:hummus.eRangeTypeSpecific,specificRanges:[[inPage.sourcePage,inPage.sourcePage]]});
 			}
 		}
 
