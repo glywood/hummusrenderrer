@@ -209,6 +209,12 @@ function renderDocument(inDocument,inPDFWriter,inRenderingState)
 			width = inPage.width || width;
 			height = inPage.height || height;
 			thePageDriver = new NewPageDriver(inPDFWriter,width,height);
+
+			if (inPage.source !== undefined)
+			{
+				inPDFWriter.mergePDFPagesToPage(thePageDriver.page, inPage.source,
+					{type:hummus.eRangeTypeSpecific,specificRanges:[inPage.sourcePage,inPage.sourcePage]});
+			}
 		}
 
 		// render boxes
